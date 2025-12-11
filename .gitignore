@@ -1,0 +1,6 @@
+app/summarizer/*
+app/transcribation/*
+*.safetensors
+*.bin
+*.model
+*.json
