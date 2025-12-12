@@ -1,173 +1,269 @@
-# transcription-summarization
+transcription-summarization
+Speech-to-Text and Summarization
 
-# 🧠 Speech-to-Text + Summarization  
-**UCU NLP Course Project — “NLP Fairies” (Lida, Khrystya, Yulia)**  
-📅 *November 2025*
+UCU NLP Course Project — “NLP Fairies”
+Authors: Lida, Khrystya, Yulia
+Date: November 2025
 
----
+Overview
 
-## 📖 Overview
+This project implements an end-to-end Natural Language Processing pipeline for processing spoken audio.
+The system:
 
-This project implements an end-to-end system that:
-1. Converts **spoken audio** into text using **OpenAI’s Whisper** model.  
-2. Summarizes the resulting transcripts using an **abstractive transformer-based summarizer (BART-Large-CNN)**.  
+Converts raw audio recordings into text using the Whisper automatic speech recognition model.
 
-🎯 **Goal:** Automate the process of transcribing and condensing multi-speaker conversations (e.g., meetings or interviews) into short, coherent summaries.
+Applies post-processing to reduce transcription artifacts.
 
----
+Generates abstractive summaries of long transcripts using a transformer-based summarization model.
 
-## 💡 Motivation
+Optionally evaluates the quality of generated summaries using a large language model acting as a judge.
 
-Every day, hours of speech are recorded in meetings, podcasts, and lectures — but most of it remains **unstructured**.  
-Manual transcription and summarization are **slow**, **error-prone**, and **expensive**.  
+The pipeline is designed to work with long-form conversational or narrative speech such as meetings, interviews, or recorded stories.
 
-An integrated **STT + Summarization** system makes spoken content:
-- 🧭 Searchable  
-- 💬 Easy to digest  
-- 📊 Ready for analysis or downstream NLP tasks  
+Motivation
 
----
+Large volumes of spoken content are produced daily in meetings, lectures, interviews, and podcasts.
+However, spoken data is difficult to search, analyze, and reuse without structured textual representations.
 
-## 🗂️ Data Overview
+Manual transcription and summarization are time-consuming and error-prone.
+An automated speech-to-text and summarization pipeline enables:
 
-### 🎧 Speech-to-Text dataset
-- **Source:** FLEURS (clean subset)  
-- **Languages:** English / Ukrainian  
-- **Size:** 1,817 audio–text pairs (~4–5 hours total)  
-- **Splits:** 80 % train | 10 % validation | 10 % test  
-- **Average clip duration:** 6–12 seconds  
-- **Average transcript length:** 10–20 words  
+Faster access to spoken content
 
-### 📰 Summarization dataset
-- **Source:** [SAMSum dataset](https://huggingface.co/datasets/knkarthick/samsum)  
-- **Domain:** multi-speaker chat dialogues  
-- **Purpose:** fine-tuning the BART-Large-CNN summarizer  
+Efficient information retrieval
 
----
+Downstream NLP tasks such as classification, retrieval, or analytics
 
-## 🧹 Data Cleaning & Preprocessing
+This project explores how modern transformer-based models can be combined into a practical and modular pipeline.
 
-### Audio
-- Converted all files → WAV (16 kHz mono)  
-- Trimmed silence / normalized volume  
-- Removed clips < 1 s or > 30 s  
+Data Overview
+Speech-to-Text Data
 
-### Text
-- Lowercased + removed fillers and punctuation  
-- Ensured alignment between audio and transcript  
-- Split by speaker to avoid leakage between splits  
+Source: FLEURS dataset (clean subset)
 
----
+Languages: English, Ukrainian
 
-## 🧩 Model Architecture
+Total duration: approximately 4–5 hours
 
-### 1️⃣ Speech-to-Text: Whisper
-- Pretrained multilingual encoder–decoder model from **OpenAI**  
-- **Input:** log-mel spectrograms  
-- **Output:** tokenized text sequences  
-- Fine-tuned with frozen encoder to prevent overfitting on small data  
-- Variable-length padding + masking for stable training  
+Number of samples: 1,817 audio–text pairs
 
-### 2️⃣ Summarization: BART-Large-CNN
-- Transformer encoder–decoder for **abstractive summarization**  
-- Fine-tuned on **SAMSum** dialogues  
-- Outputs short, human-like summaries of multi-speaker text  
+Data splits:
 
----
+80% training
 
-## 🧮 Training Pipeline
-COLLECT & SPLIT DATA
-↓
-PREPROCESS AUDIO + TEXT
-↓
-LOAD MODEL CONFIGURATIONS
-↓
-FREEZE ENCODER (Whisper)
-↓
-BATCH, PAD, MASK
-↓
-TRAIN + VALIDATE
+10% validation
 
+10% test
 
+Average audio length: 6–12 seconds
 
----
+Average transcript length: 10–20 words
 
-## ⚙️ Model Inference Example
+Summarization Data
 
-**Expected:**  
-> “UN peacekeepers who arrived in Haiti after the 2010 earthquake are being blamed for the spread of the disease which started near the troops’ encampment.”
+Source: SAMSum dataset
 
-**Predicted:**  
-> “You and peacekeepers who arrived in Hady after the 2010 earthquake are being blamed for the spread of the disease which started near the troops encampment.”
+Domain: multi-speaker chat dialogues
 
-🗣️ *Close semantic match but minor pronunciation errors (Haiti → Hady).*
+Purpose: fine-tuning and evaluation of abstractive summarization models
 
----
+Input: conversational dialogue text
 
-## 📰 Summarization Example
+Output: short abstractive summaries
 
-**Input dialogue:**  
-> A: “Hey, did you finish the meeting notes?”  
-> B: “Not yet, I’ll summarize them later.”  
+Data Preprocessing
+Audio Preprocessing
 
-**Generated summary:**  
-> “They discussed finishing the meeting notes later.”  
+All audio files converted to WAV format
 
----
+Sample rate standardized to 16 kHz mono
 
-## ⚠️ Challenges
+Silence trimming applied
 
-| Type | Description | Mitigation |
-|------|--------------|-------------|
-| 🎧 Audio quality | Background noise, variable loudness | Normalization + silence trimming |
-| 🧾 Text mismatch | Misalignment between audio & transcripts | Regex cleaning + manual spot-check |
-| ⚖️ Imbalance | Variable clip lengths (1–30 s) | Quartile grouping + batching |
-| 💻 Runtime limits | GPU memory & Colab timeouts | Checkpointing + smaller batch sizes |
-| 🧩 Multilingual noise | Mixed EN/UA samples | Language-specific filtering |
-| ✍ Summarization quality | Context loss in dialogues | Fine-tuning + ROUGE evaluation |
+Loudness normalized
 
----
+Audio clips shorter than 1 second or longer than 30 seconds removed
 
-## 📈 Results (Preliminary)
+Text Preprocessing
 
-| Model | Metric | Score |
-|-------|---------|--------|
-| Whisper (STT) | Word Error Rate (WER) | ~0.18–0.22 |
-| BART-Large-CNN (Summary) | ROUGE-1 / ROUGE-L | ~0.42 / 0.39 |
+Lowercasing
 
-*(Approximate scores based on validation subset.)*
+Removal of filler words and excessive punctuation
 
----
+Alignment checks between audio and transcript
 
-## 🚀 Next Steps
+Speaker-based segmentation to prevent data leakage across splits
 
-1️⃣ **Integrate everything into one pipeline**  
-   → 🎙️ Audio → 🧠 STT → 🧹 Preprocessing → 📰 Summarization → ✅ Output  
+Model Architecture
+Speech-to-Text: Whisper
 
-2️⃣ **Optimize model and data**  
-   → Add more data via **augmentation** (noise, speed, pitch)  
-   → Clean noisy/long clips 🧽  
-   → Try smaller & faster models ⚡  
+Pretrained encoder–decoder transformer model
 
-3️⃣ **Evaluate the final solution**  
-   → Compute **WER / CER** for STT  
-   → Compute **ROUGE / BERTScore** for summarization  
-   → Compare baseline vs improved results 📊   
+Input: log-mel spectrograms extracted from audio
 
----
+Output: tokenized text sequences
 
-## 👩‍💻 Contributors
+Multilingual support (English and Ukrainian)
 
-| Name | Role |
-|------|------|
-| **Lida** | Data preprocessing & EDA |
-| **Khrystya** | Speech-to-Text (Whisper) |
-| **Yulia** | Summarization (BART-Large-CNN) |
+Encoder frozen during fine-tuning to reduce overfitting
 
----
+Variable-length padding and attention masking used during training
 
-## 🧾 References
-- OpenAI Whisper (2022) — [GitHub](https://github.com/openai/whisper)  
-- Hugging Face Transformers (BART-Large-CNN)  
-- SAMSum Dataset (2019) — Dialogue Summarization Benchmark  
-- FLEURS Dataset (Google Research, 2022)  
+Summarization: Transformer-based Abstractive Model
+
+Encoder–decoder transformer architecture
+
+Fine-tuned on dialogue summarization data
+
+Generates concise abstractive summaries rather than extractive copies
+
+Designed to handle conversational and narrative text
+
+Inference Pipeline
+
+The full inference pipeline consists of the following stages:
+
+Audio loading and normalization
+
+Chunking long audio into short segments (approximately 20–30 seconds)
+
+Speech-to-text transcription for each segment
+
+Text cleaning and removal of repeated or hallucinated phrases
+
+Optional punctuation and formatting refinement using a language model
+
+Hierarchical summarization of long transcripts
+
+Optional evaluation of summary quality using an LLM-based judge
+
+Export of results into structured document format
+
+Hierarchical Summarization
+
+Directly summarizing long transcripts often leads to poor results due to context limits and model bias toward early text.
+
+To address this, hierarchical summarization is used:
+
+The transcript is split into chunks of approximately 700–900 words
+
+Each chunk is summarized independently
+
+Intermediate summaries are concatenated
+
+A final summary is generated from the intermediate summaries
+
+This approach improves coherence, reduces hallucinations, and preserves information from the entire transcript.
+
+Model Inference Example
+
+Speech-to-text example:
+
+Expected transcript:
+
+“UN peacekeepers who arrived in Haiti after the 2010 earthquake are being blamed for the spread of the disease which started near the troops’ encampment.”
+
+Predicted transcript:
+
+“UN peacekeepers who arrived in Hady after the 2010 earthquake are being blamed for the spread of the disease which started near the troops encampment.”
+
+The transcription preserves semantic meaning but contains minor pronunciation-based errors.
+
+Summarization Example
+
+Input dialogue:
+
+A: “Hey, did you finish the meeting notes?”
+B: “Not yet, I’ll summarize them later.”
+
+Generated summary:
+
+“They discussed finishing the meeting notes later.”
+
+Evaluation
+Speech-to-Text Evaluation
+
+Metric: Word Error Rate (WER)
+
+Observed WER on validation set: approximately 0.18–0.22
+
+Common errors:
+
+Named entities
+
+Proper nouns
+
+Accents and pronunciation variations
+
+Summarization Evaluation
+
+Metrics: ROUGE-1 and ROUGE-L
+
+Approximate scores on validation subset:
+
+ROUGE-1: 0.42
+
+ROUGE-L: 0.39
+
+LLM-Based Evaluation
+
+In addition to automatic metrics, an optional evaluation step uses a large language model to:
+
+Compare the transcript and generated summary
+
+Assign a quality score (0–10)
+
+Provide qualitative feedback on coverage, coherence, and hallucinations
+
+This approach allows semantic-level assessment beyond n-gram overlap metrics.
+
+Challenges and Limitations
+Category	Description	Mitigation
+Audio quality	Background noise and inconsistent loudness	Normalization and silence trimming
+Transcription artifacts	Repetition and hallucinations	Audio chunking and text cleaning
+Data imbalance	Variable clip lengths	Length-based batching
+Computational limits	Limited GPU/CPU resources	Smaller batch sizes and checkpointing
+Multilingual noise	Mixed-language samples	Language filtering
+Long-context summarization	Loss of late-context information	Hierarchical summarization
+Implementation Details
+
+Frameworks: PyTorch, Hugging Face Transformers
+
+Audio processing: ffmpeg, librosa
+
+Models loaded locally or from Hugging Face repositories
+
+Optional integration with external LLM APIs for punctuation and evaluation
+
+User interface implemented with Streamlit
+
+Output export supported in DOCX format
+
+Future Work
+
+Extend evaluation with BERTScore and human evaluation
+
+Improve punctuation and formatting robustness
+
+Experiment with faster and smaller speech models
+
+Add speaker diarization
+
+Support additional languages
+
+Deploy as a web service
+
+Contributors
+Name	Responsibility
+Lida	Data preprocessing and exploratory analysis
+Khrystya	Speech-to-text pipeline
+Yulia	Summarization model
+References
+
+OpenAI Whisper (2022)
+
+Hugging Face Transformers
+
+SAMSum Dataset (2019)
+
+FLEURS Dataset (Google Research, 2022)
