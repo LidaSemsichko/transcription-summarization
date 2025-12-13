@@ -4,6 +4,7 @@
 **UCU NLP Course Project — “NLP Fairies”**  
 **Authors:** Lida, Khrystya, Yulia  
 **Date:** November 2025
+
 Link for endpoints: https://drive.google.com/drive/folders/1bu3kFe05f2nhmoxSZHienf1_DUMAw0KM?usp=drive_link
 (you need to download those 2 folders in app folder)
 ---
